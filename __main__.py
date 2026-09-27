@@ -56,6 +56,23 @@ class Communicator:
                 print(f"Connection error sending {move}; retrying...")
                 time.sleep(1)
 
+    def end_game(self, game_id):
+        url = f"{API}/bot/game/{game_id}/"
+        try:
+            response = self.session.post(url+"abort", timeout=10)
+            # if 429, i guess just fallback to getting timed out
+            response.raise_for_status()
+            return
+        except requests.exceptions.HTTPError as err:
+            try:
+                response = self.session.post(url+"resign", timeout=10)
+                # if 429, i guess just fallback to getting timed out
+                response.raise_for_status()
+                return
+            except requests.exceptions.HTTPError as err:
+                # get timeouted then
+                print("Could not abort or resign. Timing out...")
+
     def handle_challenges(self, event):
         """Handle an incoming Lichess challenge."""
         challenge = event["challenge"]
@@ -158,6 +175,11 @@ if __name__ == "__main__":
         core.new_game()
         try:
             communicator.play_game(game_id, core)
+        except KeyboardInterrupt:
+            # resign and end
+            print("Terminating...")
+            communicator.end_game(game_id)
+            exit()
         except Exception as err:
             # Even if something goes wrong, does that really mean
             # we gotta stop everything? Maybe it's a network issue,
