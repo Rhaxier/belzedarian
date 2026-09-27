@@ -170,16 +170,20 @@ if __name__ == "__main__":
 
     while True:
         print("Waiting...")
-        game_id = communicator.wait_for_game()
+        try:
+            game_id = communicator.wait_for_game()
+        except KeyboardInterrupt:
+            print("Terminating...")
+            exit()
         print("Playing...")
         core.new_game()
         try:
             communicator.play_game(game_id, core)
         except KeyboardInterrupt:
-            # resign and end
-            print("Terminating...")
+            # resign 
+            print("Ending game...")
             communicator.end_game(game_id)
-            exit()
+            #exit() # just resign, if we must end Ctrl+C again
         except Exception as err:
             # Even if something goes wrong, does that really mean
             # we gotta stop everything? Maybe it's a network issue,
