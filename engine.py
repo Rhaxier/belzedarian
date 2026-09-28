@@ -13,6 +13,7 @@ import subprocess
 import time
 import os
 import selectors
+import logging
 
 class BlockingTimeoutExpiredError(Exception):
     """Raised when a target is not received within a timeout"""
@@ -64,7 +65,7 @@ class Engine:
         self.send("isready")
         self.block("readyok", 5)
 
-    def block(self, target, timeout=None, doreturn=False):
+    def block(self, target, timeout=None,):# doreturn=False):
         """Pause execution for at most timeout seconds until
         target is found in the engine's stdout. If the timeout
         expires, the engine terminates with an error.
@@ -77,7 +78,7 @@ class Engine:
                 line, self.buffer = self.buffer.split(b"\n", 1)
                 line = line.decode("utf-8").strip()
                 if target in line:
-                    return line if doreturn else None
+                    return line# if doreturn else None
 
             # do timeout checks
             remaining = deadline - time.monotonic() if deadline is not None else None
@@ -104,7 +105,7 @@ class Engine:
                           # BrokenPipeError and other weird memory holes
         self.selector.close()
         self.engine.wait()
-        del self
+        # del self # not worth dealing with all the gc know-it-alls
                           
     def _setoption(self, option, value):
         """Internal function to set options. It is recommended to subclass the Engine
@@ -149,7 +150,7 @@ class AtomicStockfish(Engine):
             command = "go " + " ".join(f"{key} {value}" for key, value in kwargs.items() if value is not None)
 
         self.send(command)
-        return self.block("bestmove", doreturn=True).split()[1]    
+        return self.block("bestmove").split()[1]    
 
 if __name__ == "__main__":
     # why?

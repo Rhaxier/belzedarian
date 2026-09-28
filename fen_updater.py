@@ -44,7 +44,7 @@ class Board:
         # Turns out castling is NOT e8g8, its more like e8h8 for some reason from
         # Lichess
 
-        if move in ("e1h1", "e1a1", "e8h8", "e8a8"):
+        if self.board[startrank][startfile]in"Kk"and move in ("e1h1", "e1a1", "e8h8", "e8a8"):
             move = {"e1h1": "e1g1","e1a1": "e1c1","e8h8": "e8g8","e8a8": "e8c8",}[move]
 
         # extract components

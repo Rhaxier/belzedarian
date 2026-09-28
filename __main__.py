@@ -11,6 +11,8 @@ import time
 import core as _core
 import fen_updater as _fen
 
+# todo: transition to logging
+
 API = "https://lichess.org/api"
 
 def _extract_belzedar_secrets(file):
