@@ -112,17 +112,27 @@ class Communicator:
             elif event["type"] == "gameStart":
                 return event["game"]["id"]
 
+    def send_chat(self, game_id, text, room):
+        """Send a message in a room."""
+        if room != "both":
+            response = self.session.post(f"{API}/bot/game/{game_id}/chat",data={"room":room,"text":text})
+        else:
+            self.send_chat(game_id, text, "player")
+            self.send_chat(game_id, text, "spectator")
+        response.raise_for_status()
+
     def play_game(self, game_id, core):
+        """Play a game, indicated by game_id"""
         response = self.session.get(
             f"{API}/bot/game/stream/{game_id}",
             stream=True
         )
         response.raise_for_status()
 
+        self.send_chat(game_id, "Belzedarian v1.0.0", "both")
         board = None
         side = None
         move_count = 0
-
         for line in response.iter_lines():
             if not line:
                 continue
