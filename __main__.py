@@ -116,10 +116,11 @@ class Communicator:
         """Send a message in a room."""
         if room != "both":
             response = self.session.post(f"{API}/bot/game/{game_id}/chat",data={"room":room,"text":text})
+            response.raise_for_status()
         else:
             self.send_chat(game_id, text, "player")
             self.send_chat(game_id, text, "spectator")
-        response.raise_for_status()
+        
 
     def play_game(self, game_id, core):
         """Play a game, indicated by game_id"""
@@ -129,7 +130,7 @@ class Communicator:
         )
         response.raise_for_status()
 
-        self.send_chat(game_id, "Belzedarian v1.0.0", "both")
+        
         board = None
         side = None
         move_count = 0
@@ -188,6 +189,8 @@ if __name__ == "__main__":
             print("Terminating...")
             exit()
         print("Playing...")
+        communicator.send_chat(game_id, "Belzedarian v1.0.0", "both")
+        communicator.send_chat(game_id, "Running using belzedar.duckdns.org/atomicdb", "both")
         core.new_game()
         try:
             communicator.play_game(game_id, core)
