@@ -115,8 +115,9 @@ class Communicator:
     def send_chat(self, game_id, text, room):
         """Send a message in a room."""
         if room != "both":
-            response = self.session.post(f"{API}/bot/game/{game_id}/chat",data={"room":room,"text":text})
+            response = self.session.post(f"{API}/bot/game/{game_id}/chat",data={"room":room,"text":text},timeout=10)
             response.raise_for_status()
+            time.sleep(0.5) # pause for effect
         else:
             self.send_chat(game_id, text, "player")
             self.send_chat(game_id, text, "spectator")
@@ -190,7 +191,7 @@ if __name__ == "__main__":
             exit()
         print("Playing...")
         communicator.send_chat(game_id, "Belzedarian v1.0.0", "both")
-        communicator.send_chat(game_id, "Running using belzedar.duckdns.org/atomicdb", "both")
+        #communicator.send_chat(game_id, "Running using belzedar.duckdns.org(slash)atomicdb", "both")
         core.new_game()
         try:
             communicator.play_game(game_id, core)
