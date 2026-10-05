@@ -2,6 +2,9 @@
 
 import chess
 import chess.variant
+import logging
+
+logger = logging.getLogger(__name__)
 
 STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 

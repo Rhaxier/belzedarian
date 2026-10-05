@@ -1,6 +1,9 @@
 """A cache for AtomicDB. Currently unused, will integrate later"""
 
 from collections import OrderedDict
+import logging
+
+logger = logging.getLogger(__name__)
 
 class OpeningCache(OrderedDict):
     def __init__(self, path, maxsize, *args, **kwargs):

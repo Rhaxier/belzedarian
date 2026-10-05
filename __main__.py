@@ -7,6 +7,7 @@ the bot on Lichess and be able to play it.
 import json
 import requests
 import time
+import logging
 
 import core as _core
 import fen_updater as _fen
@@ -34,6 +35,7 @@ class Communicator:
 
         self.account = response.json()
         self.id = self.account["id"]
+        self.logger = logging.getLogger(__name__)
 
 
     def make_move(self, game_id, move):
@@ -44,7 +46,7 @@ class Communicator:
                 response = self.session.post(url, timeout=10)
 
                 if response.status_code == 429:
-                    print("Lichess rate limit; waiting...")
+                    self.logger.info("Rate limited")
                     time.sleep(60)
                     continue
 
@@ -55,7 +57,7 @@ class Communicator:
                 if attempt == 2:
                     raise
 
-                print(f"Connection error sending {move}; retrying...")
+                self.logger.error(f"Connection error sending {move}; retrying...")
                 time.sleep(1)
 
     def end_game(self, game_id):
@@ -73,7 +75,7 @@ class Communicator:
                 return
             except requests.exceptions.HTTPError as err:
                 # get timeouted then
-                print("Could not abort or resign. Timing out...")
+                self.logger.warning("Could not abort or resign. Timing out...")
 
     def handle_challenges(self, event):
         """Handle an incoming Lichess challenge."""
@@ -146,10 +148,12 @@ class Communicator:
                 side = "w" if self.id == event["white"]["id"] else "b"
 
                 moves = event["state"]["moves"].split()
+                # Since transitioning to python-chess, moves aren't so serious
+                # an issue anymore
                 for move in moves:
-                    print("BEFORE:", board.get_fen)
+                    #print("BEFORE:", board.get_fen)
                     board.push_move(move)
-                    print("AFTER", move, board.get_fen)
+                    #print("AFTER", move, board.get_fen)
 
                 move_count = len(moves)
 
@@ -161,9 +165,9 @@ class Communicator:
                 moves = event["moves"].split()
 
                 for move in moves[move_count:]:
-                    print("BEFORE:", board.get_fen)
+                    #print("BEFORE:", board.get_fen)
                     board.push_move(move)
-                    print("AFTER", move, board.get_fen)
+                    #print("AFTER", move, board.get_fen)
 
                 move_count = len(moves)
 
@@ -177,19 +181,39 @@ class Communicator:
                 self.make_move(game_id, move)
 
 if __name__ == "__main__":
+
+    # todo: switch to argv, maybe using argparse or something
+    clear = input("Clear the previous logs (y/n)? ")
+    while clear.lower()[0] not in "yn":clear = input("Clear the previous logs? (y/n)")
+
+    if clear.lower()[0] == "y":
+        with open("belzedarian.log", "w") as f:
+            # mission accomplished
+            pass
+
+    filelog = logging.FileHandler("belzedarian.log")
+    console = logging.StreamHandler()
+
+    logging.basicConfig(
+        format="%(asctime)s [%(levelname)s] %(module)s @ %(funcName)s @ %(lineno)d: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        handlers=[filelog, console],
+        level=logging.INFO
+    )
+
     TOKEN = _extract_belzedar_secrets("secrets.json")
     
     communicator = Communicator(TOKEN)
     core = _core.Core()
 
     while True:
-        print("Waiting...")
+        communicator.logger.info("Waiting...")
         try:
             game_id = communicator.wait_for_game()
         except KeyboardInterrupt:
-            print("Terminating...")
+            communicator.logger.info("Terminating...")
             exit()
-        print("Playing...")
+        communicator.logger.info("Playing...")
         communicator.send_chat(game_id, "Belzedarian v1.0.0", "both")
         #communicator.send_chat(game_id, "Running using belzedar.duckdns.org(slash)atomicdb", "both")
         core.new_game()
@@ -197,7 +221,7 @@ if __name__ == "__main__":
             communicator.play_game(game_id, core)
         except KeyboardInterrupt:
             # resign 
-            print("Ending game...")
+            communicator.logger.info("Ending game...")
             communicator.end_game(game_id)
             #exit() # just resign, if we must end Ctrl+C again
         except Exception as err:
@@ -207,6 +231,6 @@ if __name__ == "__main__":
             # playing the same game. If its an unexpected ending
             # from other side, we'll terminate, but wait for a new
             # game.
-            print(f"Game unexpectedly over with error {err}")
+            communicator.logger.info(f"Game unexpectedly over with error {err}")
         else:
-            print("Game over. GG!")
+            communicator.logger.info("Game over. GG!")

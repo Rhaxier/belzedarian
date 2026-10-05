@@ -9,6 +9,9 @@ ENGINE_EXEC = "./Atomic-Stockfish-linux-x86_64"
 import sys
 import query as _query, engine as _engine
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Core:
     def __init__(self):
@@ -33,25 +36,25 @@ class Core:
         if not self.out_of_eval:
             try:
                 move = _query.query_from_url(fen)
-                print(move)#, move is None)
                 if move is not None:
+                    logger.info(f"AtomicDB move: {move}")
                     return move
                 self.out_of_eval = True # we've reached unexplored territory
             except (requests.exceptions.HTTPError) as err:
                 if err.response.status_code != 404:
                     # probably not that serious,
                     # fallback to atomic-sf anyways
-                    print(f"Error: {err}", file=sys.stderr)
+                    logger.error(f"Error: {err}")
                 else:
                     self.out_of_eval = True
             except Exception as err:
                 # again we've reached a fatal error with connecting to
                 # atomicdb, but that shouldn't incapacitate us. fallback
                 # to sf, but let us know what happened
-                print(f"Error: {err}", file=sys.stderr)
+                logger.error(f"Error: {err}")
                 self.out_of_eval = True
         self.prepare_sf(4, 512, fen) # change per user
-        print("Sent FEN:", fen)
+        logger.debug("Sent FEN:", fen)
         move = self.engine.go(
             wtime=wtime,
             btime=btime,
@@ -60,7 +63,7 @@ class Core:
             movetime=movetime,
             depth=depth
         )
-        print("SF MOVE:", repr(move))
+        logger.info("SF MOVE: %r" %move)
         return move
         
     def prepare_sf(self, threads, hash, fen):
@@ -73,6 +76,7 @@ class Core:
             self.engine.is_ready() # see comment in new_game
             self.configured = True # until program terminates, engine stays up,
                                   # just idle
+            logger.info("Atomic SF ready")
         self.engine.set_position(fen)
 
     def new_game(self):
@@ -82,6 +86,7 @@ class Core:
         self.engine.is_ready() # ucinewgame is kinda expensive, better make sure its actually
                                # on standby
         self.out_of_eval = False
+        logger.info("Atomic SF reset")
 
             
             

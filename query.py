@@ -6,6 +6,9 @@ a complete bot's source code to make a simple GET request.
 """
 
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 # The URL where this all happens. May God have enough mercy on
 # this bot to keep this link alive.

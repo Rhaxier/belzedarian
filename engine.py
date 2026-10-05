@@ -15,6 +15,8 @@ import os
 import selectors
 import logging
 
+logger = logging.getLogger(__name__)
+
 class BlockingTimeoutExpiredError(Exception):
     """Raised when a target is not received within a timeout"""
     pass
@@ -84,11 +86,13 @@ class Engine:
             remaining = deadline - time.monotonic() if deadline is not None else None
 
             if remaining is not None and remaining <= 0:
+                logger.critical(f"expected {target} within {timeout:.2f} seconds")
                 raise BlockingTimeoutExpiredError(f"expected {target} within {timeout:.2f} seconds")
 
             events = self.selector.select(remaining)
 
             if not events:
+                logger.critical(f"expected {target} within {timeout:.2f} seconds")
                 raise BlockingTimeoutExpiredError(f"expected {target} within {timeout:.2f} seconds")
 
             # read new lines
@@ -96,6 +100,7 @@ class Engine:
 
             # At no point should the stream just die. If it does, we're in trouble, big trouble.
             if not nextchunk:
+                logger.critical(f"Engine stdout unexpectedly ended while expecting {target}, returncode={self.engine.poll()}")
                 raise EOFError(f"Engine stdout unexpectedly ended while expecting {target}, returncode={self.engine.poll()}")
 
             self.buffer += nextchunk
@@ -116,7 +121,7 @@ class Engine:
 class AtomicStockfish(Engine):
     
     def __init__(self, path):
-        """Initialize *specifically* belzedar's own Atomic-Stockfish engine."""
+        """Initialize *specifically* belzedar's Atomic-Stockfish engine."""
         super().__init__(path)
 
     def set_threads(self, value):
@@ -154,4 +159,4 @@ class AtomicStockfish(Engine):
 
 if __name__ == "__main__":
     # why?
-    print("Wrong module")
+    pass
