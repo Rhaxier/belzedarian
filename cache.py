@@ -10,6 +10,12 @@ class OpeningCache(OrderedDict):
         """Init OpeningCache, an LRU cache for AtomicDB"""
         super().__init__(*args, **kwargs)
         self.path = path
+        # Worst case scenario: the upper bound for the max characters per
+        # line is 96 (+ \n). The cache should at most be 10 MB, allowing
+        # for 104,166 unique positions to be stored. If atomicdb goes down,
+        # these lines would be enough to carry practical opening theory,
+        # because except for my fellow DB eval tickers, no one cares
+        # for nodes that no one will ever reach
         self.maxsize = maxsize
         try:
             with open(path, "r") as file:
@@ -17,7 +23,7 @@ class OpeningCache(OrderedDict):
         except FileNotFoundError:
             pass # create later
 
-    def _frompath(self, file):
+    def _frompath(self, file): 
         """Load a cache into OpeningCache from a path.
         
         While technically an internal function, it can be
