@@ -209,6 +209,8 @@ if __name__ == "__main__":
         try:
             game_id = communicator.wait_for_game()
         except KeyboardInterrupt:
+            core.cache.save_to_path()
+            communicator.logger.info("Saved to disk")
             communicator.logger.info("Terminating...")
             exit()
         communicator.logger.info("Playing...")

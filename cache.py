@@ -1,4 +1,4 @@
-"""A cache for AtomicDB. Currently unused, will integrate later"""
+"""A cache for AtomicDB."""
 
 from collections import OrderedDict
 import logging
