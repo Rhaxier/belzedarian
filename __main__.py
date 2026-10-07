@@ -81,7 +81,7 @@ class Communicator:
         challenge_id = challenge["id"]
 
 
-        if challenge["variant"]["key"] != "atomic":
+        if challenge["variant"]["key"] != "atomic" or challenge["speed"] == "correspondence":
             response = self.session.post(f"{API}/challenge/{challenge_id}/decline")
             response.raise_for_status()
         else:
