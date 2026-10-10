@@ -1,3 +1,5 @@
+"""Converts nonterm6.txt to wolfrandom.fen"""
+
 import sys
 import re
 import chess
