@@ -44,7 +44,7 @@ def load_offsets():
     return offsets
 
 def _getline(file, lineno):
-    file.seek(lineno)
+    file.seek(OFFSETS[lineno])
     return file.readline()
 
 OFFSETS = load_offsets()
@@ -71,7 +71,7 @@ def exists(fen):
             if line == fen:
                 return True
             elif line < fen:
-                upper = middle +1
+                lower = middle +1
             else:
-                lower = middle -1
+                upper = middle -1
     return False

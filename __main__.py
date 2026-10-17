@@ -11,6 +11,7 @@ import logging
 
 import core as _core
 import fen_updater as _fen
+import iswolfrandom as _iswr
 
 API = "https://lichess.org/api"
 
@@ -62,7 +63,6 @@ class Communicator:
         url = f"{API}/bot/game/{game_id}/"
         try:
             response = self.session.post(url+"abort", timeout=10)
-            # if 429, i guess just fallback to getting timed out
             response.raise_for_status()
             return
         except requests.exceptions.HTTPError as err:
@@ -77,6 +77,9 @@ class Communicator:
 
     def handle_challenges(self, event):
         """Handle an incoming Lichess challenge."""
+
+        # note: wolfrandom decision happens later
+
         challenge = event["challenge"]
         challenge_id = challenge["id"]
 
@@ -110,6 +113,14 @@ class Communicator:
                 self.handle_challenges(event)
 
             elif event["type"] == "gameStart":
+                if event["game"]["fen"] != _fen.STARTPOS:
+                    startpos = event["game"]["fen"].split(" ")
+                    startpos.pop(1)
+                    startpos.pop()
+                    startpos=" ".join(startpos)
+                    if not _iswr.exists(startpos):
+                        self.end_game(event["game"]["id"])
+                        continue
                 return event["game"]["id"]
 
     def send_chat(self, game_id, text, room):
