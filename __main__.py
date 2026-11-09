@@ -209,7 +209,7 @@ if __name__ == "__main__":
         handlers=[filelog, console],
         level=logging.INFO
     )
-
+    logging.disable(logging.CRITICAL) # bnr.la only
     TOKEN = _extract_belzedar_secrets("secrets.json")
     
     communicator = Communicator(TOKEN)

@@ -71,7 +71,7 @@ class Core:
             logger.info(f"Cache move: {self.cache[fen]}")
             return self.cache[fen]
         else:
-            self.prepare_sf(4, 512, fen) # change per user
+            self.prepare_sf(1, 256, fen) # change per user
             logger.debug("Sent FEN:", fen)
             move = self.engine.go(
                 wtime=wtime,

@@ -14,8 +14,8 @@ WRFILE = "wolfrandom.fen"
 WROFFSETS = "wroffsets.bin"
 
 if not pathlib.Path(WRFILE).is_file():
-    raise FileNotFoundError("wolfrandom.fen was not found, please unzip the 7z provided")
-
+#    raise FileNotFoundError("wolfrandom.fen was not found, please unzip the 7z provided")
+    pass
 # sus due to newline presence issues
 #LINES = int(subprocess.run(["wc", "-l", WRFILE], capture_output=True, text=True).stdout.strip().split(" ")[0])
 
