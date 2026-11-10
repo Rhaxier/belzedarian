@@ -209,7 +209,7 @@ if __name__ == "__main__":
         handlers=[filelog, console],
         level=logging.INFO
     )
-    logging.disable(logging.CRITICAL) # bnr.la only
+    logging.disable(logging.INFO) # bnr.la only
     TOKEN = _extract_belzedar_secrets("secrets.json")
     
     communicator = Communicator(TOKEN)
@@ -218,12 +218,19 @@ if __name__ == "__main__":
     while True:
         communicator.logger.info("Waiting...")
         try:
+            backoff = 1
             game_id = communicator.wait_for_game()
         except KeyboardInterrupt:
             core.cache.save_to_path()
             communicator.logger.info("Saved to disk")
             communicator.logger.info("Terminating...")
             exit()
+        except requests.exceptions.RequestException as err:
+            communicator.logger.error(f"Stream error: {err}")
+            time.sleep(backoff)
+            backoff *= 2
+            backoff = min(backoff, 60)
+            continue
         communicator.logger.info("Playing...")
         communicator.send_chat(game_id, "Belzedarian v1.0.0", "both")
         #communicator.send_chat(game_id, "Running using belzedar.duckdns.org(slash)atomicdb", "both")
@@ -245,3 +252,4 @@ if __name__ == "__main__":
             communicator.logger.info(f"Game unexpectedly over with error {err}")
         else:
             communicator.logger.info("Game over. GG!")
+
