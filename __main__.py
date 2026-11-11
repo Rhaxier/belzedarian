@@ -228,12 +228,12 @@ if __name__ == "__main__":
     
     communicator = Communicator(TOKEN)
     core = _core.Core()
-
+    backoff = 1
     while True:
         communicator.logger.info("Waiting...")
         try:
-            backoff = 1
             game_id = communicator.wait_for_game()
+            backoff = 1
         except KeyboardInterrupt:
             core.cache.save_to_path()
             communicator.logger.info("Saved to disk")
