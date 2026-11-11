@@ -35,10 +35,13 @@ class Core:
         # until the next game.
         self.out_of_eval = False
 
+        # Update
+        self.opening = "Unknown"
+
     def get_move(self, fen, wtime=None, btime=None, winc=None, binc=None, movetime=3000, depth=37):
         if not self.out_of_eval:
             try:
-                move = _query.query_from_url(fen)
+                move, opening = _query.query_from_url(fen)
                 if move is not None:
                     logger.info(f"AtomicDB move: {move}")
                     # commented out the below bcuz it would be more
@@ -50,7 +53,7 @@ class Core:
                     self.cache[fen] = move
                     # since it's being doubly accessed, no problem for LRU
                     logger.info(f"Updated cache with {move} for {fen}")
-                    return move
+                    return move, opening
                 self.out_of_eval = True # we've reached unexplored territory
             except (requests.exceptions.HTTPError) as err:
                 if err.response.status_code != 404:
@@ -105,6 +108,7 @@ class Core:
                                # on standby
         self.out_of_eval = False
         logger.info("Atomic SF reset")
+        self.opening = "Unknown"
 
             
             

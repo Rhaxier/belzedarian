@@ -36,6 +36,8 @@ class Communicator:
         self.id = self.account["id"]
         self.logger = logging.getLogger(__name__)
 
+        self.opening = "Unknown"
+
 
     def make_move(self, game_id, move):
         url = f"{API}/bot/game/{game_id}/move/{move}"
@@ -166,8 +168,14 @@ class Communicator:
 
                 move_count = len(moves)
 
-                if side == board.side:
-                    move = core.get_move(board.get_fen, )#event["wtime"], event["btime"], event["winc"], event["binc"])
+                if side == board.side:                  #gameFull doesn't carry time
+                    move = core.get_move(board.get_fen) #event["wtime"], event["btime"], event["winc"], event["binc"])
+                    if isinstance(move, tuple): # got an opening too?
+                        self.opening = move[1] if move[1] is not None else self.opening
+                        move = move[0]
+                    elif self.opening is not None:
+                        self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "player")
+                        self.opening = None
                     self.make_move(game_id, move)
                 
             elif event["type"] == "gameState":
@@ -187,6 +195,12 @@ class Communicator:
                     continue
 
                 move = core.get_move(board.get_fen, event["wtime"], event["btime"], event["winc"], event["binc"])
+                if isinstance(move, tuple): # got an opening too?
+                    self.opening = move[1] if move[1] is not None else self.opening
+                    move = move[0]
+                elif self.opening is not None:
+                    self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "player")
+                    self.opening = None
                 self.make_move(game_id, move)
 
 if __name__ == "__main__":
@@ -206,7 +220,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         format="%(asctime)s [%(levelname)s] %(module)s @ %(funcName)s @ %(lineno)d: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[filelog, console],
+        handlers=[filelog],#, console],
         level=logging.INFO
     )
     logging.disable(logging.INFO) # bnr.la only
@@ -231,6 +245,7 @@ if __name__ == "__main__":
             backoff *= 2
             backoff = min(backoff, 60)
             continue
+        communicator.opening = "Unknown"
         communicator.logger.info("Playing...")
         communicator.send_chat(game_id, "Belzedarian v1.0.0", "both")
         #communicator.send_chat(game_id, "Running using belzedar.duckdns.org(slash)atomicdb", "both")

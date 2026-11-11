@@ -22,6 +22,7 @@ def query_from_url(fen):
     # try-except to fallback to atomic-sf
     response.raise_for_status()
     move = response.json()["best_move"]
-    return move # well we survived
+    opening = response.json()["opening"]
+    return move, opening # well we survived
     
 
