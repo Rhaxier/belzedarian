@@ -17,7 +17,7 @@ URL = "https://belzedar.duckdns.org/atomicdb/api/query"
 def query_from_url(fen):
     """Queries the best move for fen from the URL, may raise errors
     (requiring manual handling)"""
-    response = requests.get(URL,params={"fen": fen},timeout=5)
+    response = requests.get(URL,params={"fen": fen, "opening": 1},timeout=5)
     # Including 404, so whoever uses this is forced to use a
     # try-except to fallback to atomic-sf
     response.raise_for_status()
