@@ -174,7 +174,7 @@ class Communicator:
                         self.opening = move[1] if move[1] is not None else self.opening
                         move = move[0]
                     elif self.opening is not None:
-                        self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "player")
+                        self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "both")
                         self.opening = None
                     self.make_move(game_id, move)
                 
@@ -199,7 +199,7 @@ class Communicator:
                     self.opening = move[1] if move[1] is not None else self.opening
                     move = move[0]
                 elif self.opening is not None:
-                    self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "player")
+                    self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "both")
                     self.opening = None
                 self.make_move(game_id, move)
 
