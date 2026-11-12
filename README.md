@@ -1,6 +1,7 @@
 # Belzedarian
 
 the bot. lichess.org/@/Belzedarian
+currently up thanks to @Citadel (Discord)/qwertychess90411 on lichess!
 
 contact @Rhaxier at Discord
 
