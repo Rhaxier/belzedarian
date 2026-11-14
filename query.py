@@ -21,7 +21,7 @@ SESSION.mount("https://", HTTPAdapter(max_retries=Retry(total=1, backoff_factor=
 def query_from_url(fen):
     """Queries the best move for fen from the URL, may raise errors
     (requiring manual handling)"""
-    response = SESSION.get(URL,params={"fen": fen, "opening": 1},timeout=5)
+    response = SESSION.get(URL,params={"fen": fen, "opening": 1},timeout=2)
     # Including 404, so whoever uses this is forced to use a
     # try-except to fallback to atomic-sf
     response.raise_for_status()
