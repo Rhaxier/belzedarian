@@ -7,6 +7,8 @@ a complete bot's source code to make a simple GET request.
 
 import requests
 import logging
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +16,7 @@ logger = logging.getLogger(__name__)
 # this bot to keep this link alive.
 URL = "https://belzedar.duckdns.org/atomicdb/api/query"
 SESSION = requests.Session()
+SESSION.mount("https://", HTTPAdapter(max_retries=Retry(total=1, backoff_factor=0.1, allowed_methods=["GET"])))
 
 def query_from_url(fen):
     """Queries the best move for fen from the URL, may raise errors
