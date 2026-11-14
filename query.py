@@ -13,11 +13,12 @@ logger = logging.getLogger(__name__)
 # The URL where this all happens. May God have enough mercy on
 # this bot to keep this link alive.
 URL = "https://belzedar.duckdns.org/atomicdb/api/query"
+SESSION = requests.Session()
 
 def query_from_url(fen):
     """Queries the best move for fen from the URL, may raise errors
     (requiring manual handling)"""
-    response = requests.get(URL,params={"fen": fen, "opening": 1},timeout=5)
+    response = SESSION.get(URL,params={"fen": fen, "opening": 1},timeout=5)
     # Including 404, so whoever uses this is forced to use a
     # try-except to fallback to atomic-sf
     response.raise_for_status()
