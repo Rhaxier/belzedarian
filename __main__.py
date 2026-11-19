@@ -248,7 +248,7 @@ if __name__ == "__main__":
         communicator.opening = "Unknown"
         communicator.logger.info("Playing...")
         communicator.send_chat(game_id, "Belzedarian v1.1.0 - join our team in my profile to receive updates on me!", "both")
-        communicator.send_chat(game_id, "Warning: using AtomicDB against this bot in-game is cheating, even for casual games, and Lichess will mark you for it", "both")        
+        communicator.send_chat(game_id, "Warning: using AtomicDB/Lichess engine against this bot in-game is cheating, even for casual games, and Lichess can ban you for it", "both")        
         #communicator.send_chat(game_id, "Running using belzedar.duckdns.org(slash)atomicdb", "both")
         core.new_game()
         try:
