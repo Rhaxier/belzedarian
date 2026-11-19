@@ -247,7 +247,7 @@ if __name__ == "__main__":
             continue
         communicator.opening = "Unknown"
         communicator.logger.info("Playing...")
-        communicator.send_chat(game_id, "Belzedarian v1.1.0", "both")
+        communicator.send_chat(game_id, "Belzedarian v1.1.0 - join our team in my profile to receive updates on me!", "both")
         #communicator.send_chat(game_id, "Running using belzedar.duckdns.org(slash)atomicdb", "both")
         core.new_game()
         try:
