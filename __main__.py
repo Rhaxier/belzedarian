@@ -115,14 +115,15 @@ class Communicator:
                 self.handle_challenges(event)
 
             elif event["type"] == "gameStart":
-                if event["game"]["fen"] != _fen.STARTPOS:
-                    startpos = event["game"]["fen"].split(" ")
-                    startpos.pop(1)
-                    startpos.pop()
-                    startpos=" ".join(startpos)
-                    if not _iswr.exists(startpos):
-                        self.end_game(event["game"]["id"])
-                        continue
+                #if event["game"]["fen"] != _fen.STARTPOS:
+                #    startpos = event["game"]["fen"].split(" ")
+                #    startpos.pop(1)
+                #    startpos.pop()
+                #    startpos=" ".join(startpos)
+                #    if not _iswr.exists(startpos):
+                #        self.end_game(event["game"]["id"])
+                #        continue
+                # RabbieR vs Belzedarian, what?
                 return event["game"]["id"]
 
     def send_chat(self, game_id, text, room):
