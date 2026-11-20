@@ -11,7 +11,7 @@ import logging
 
 import core as _core
 import fen_updater as _fen
-import iswolfrandom as _iswr
+#import iswolfrandom as _iswr
 
 API = "https://lichess.org/api"
 
