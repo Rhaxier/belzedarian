@@ -177,7 +177,8 @@ class Communicator:
                     elif self.opening is not None:
                         self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "both")
                         self.opening = None
-                    self.make_move(game_id, move)
+                    self.make_move(game_id, move) # first move doesnt have much lag issues to worry about, its
+                                                  # subsequent ones where clock runs where we gotta focus
                 
             elif event["type"] == "gameState":
                 moves = event["moves"].split()
@@ -195,7 +196,9 @@ class Communicator:
                 if board.side != side:
                     continue
 
-                move = core.get_move(board.get_fen, event["wtime"], event["btime"], event["winc"], event["binc"])
+                lag = min(13 * min(1000 - event[side+"inc"], 0), event[side+"time"]//3)
+
+                move = core.get_move(board.get_fen, (event["wtime"]-lag) if side=="w" else event["wtime"], (event["btime"]-lag) if side=="b" else event["btime"], event["winc"], event["binc"])
                 if isinstance(move, tuple): # got an opening too?
                     self.opening = move[1] if move[1] is not None else self.opening
                     move = move[0]
@@ -248,7 +251,7 @@ if __name__ == "__main__":
             continue
         communicator.opening = "Unknown"
         communicator.logger.info("Playing...")
-        communicator.send_chat(game_id, "Belzedarian v1.1.0 - join our team in my profile to receive updates on me!", "both")
+        communicator.send_chat(game_id, "Belzedarian v1.1.1 - join our team in my profile to receive updates on me!", "both")
         communicator.send_chat(game_id, "Warning: using AtomicDB/Lichess engine against this bot in-game is cheating, even for casual games, and Lichess can ban you for it", "both")        
         #communicator.send_chat(game_id, "Running using belzedar.duckdns.org(slash)atomicdb", "both")
         core.new_game()
@@ -266,7 +269,8 @@ if __name__ == "__main__":
             # playing the same game. If its an unexpected ending
             # from other side, we'll terminate, but wait for a new
             # game.
-            communicator.logger.info(f"Game unexpectedly over with error {err}")
+            communicator.logger.exception(f"Game unexpectedly over with error {err}")
+
         else:
             communicator.logger.info("Game over. GG!")
 
