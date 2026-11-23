@@ -178,11 +178,13 @@ class Communicator:
                     if isinstance(move, tuple): # got an opening too?
                         self.opening = move[1] if move[1] is not None else self.opening
                         move = move[0]
+                        self.make_move(game_id, move) 
                     elif not isbot and self.opening is not None:
+                        self.make_move(game_id, move) # first move doesnt have much lag issues to worry about, its
+                                                    # subsequent ones where clock runs where we gotta focus
                         self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "both")
                         self.opening = None
-                    self.make_move(game_id, move) # first move doesnt have much lag issues to worry about, its
-                                                  # subsequent ones where clock runs where we gotta focus
+                    
                 
             elif event["type"] == "gameState":
                 moves = event["moves"].split()
@@ -206,10 +208,12 @@ class Communicator:
                 if isinstance(move, tuple): # got an opening too?
                     self.opening = move[1] if move[1] is not None else self.opening
                     move = move[0]
+                    self.make_move(game_id, move)
                 elif not isbot and self.opening is not None:
+                    self.make_move(game_id, move)
                     self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "both")
                     self.opening = None
-                self.make_move(game_id, move)
+                
 
 if __name__ == "__main__":
 
