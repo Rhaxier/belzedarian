@@ -38,10 +38,10 @@ class Core:
         # Update
         self.opening = "Unknown"
 
-    def get_move(self, fen, wtime=None, btime=None, winc=None, binc=None, movetime=3000, depth=37):
+    def get_move(self, fen, wtime=None, btime=None, winc=None, binc=None, movetime=3000, depth=37, bot=None):
         if not self.out_of_eval:
             try:
-                move, opening = _query.query_from_url(fen)
+                move, opening = _query.query_from_url(fen, bot)
                 if move is not None:
                     logger.info(f"AtomicDB move: {move}")
                     # commented out the below bcuz it would be more

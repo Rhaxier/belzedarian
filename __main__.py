@@ -149,6 +149,7 @@ class Communicator:
         board = None
         side = None
         move_count = 0
+        isbot = False
         for line in response.iter_lines():
             if not line:
                 continue
@@ -158,7 +159,10 @@ class Communicator:
             if event["type"] == "gameFull":
                 board = _fen.Board()
                 side = "w" if self.id == event["white"]["id"] else "b"
-
+                try:
+                    isbot = event[("black" if side == "w" else "white")]["title"].lower() == "bot"
+                except KeyError:
+                    isbot = False
                 moves = event["state"]["moves"].split()
                 # Since transitioning to python-chess, moves aren't so serious
                 # an issue anymore
@@ -170,11 +174,11 @@ class Communicator:
                 move_count = len(moves)
 
                 if side == board.side:                  #gameFull doesn't carry time
-                    move = core.get_move(board.get_fen) #event["wtime"], event["btime"], event["winc"], event["binc"])
+                    move = core.get_move(board.get_fen, bot=isbot) #event["wtime"], event["btime"], event["winc"], event["binc"])
                     if isinstance(move, tuple): # got an opening too?
                         self.opening = move[1] if move[1] is not None else self.opening
                         move = move[0]
-                    elif self.opening is not None:
+                    elif not isbot and self.opening is not None:
                         self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "both")
                         self.opening = None
                     self.make_move(game_id, move) # first move doesnt have much lag issues to worry about, its
@@ -198,11 +202,11 @@ class Communicator:
 
                 lag = min(13 * min(1000 - event[side+"inc"], 0), event[side+"time"]//3)
 
-                move = core.get_move(board.get_fen, (event["wtime"]-lag) if side=="w" else event["wtime"], (event["btime"]-lag) if side=="b" else event["btime"], event["winc"], event["binc"])
+                move = core.get_move(board.get_fen, (event["wtime"]-lag) if side=="w" else event["wtime"], (event["btime"]-lag) if side=="b" else event["btime"], event["winc"], event["binc"], bot=isbot)
                 if isinstance(move, tuple): # got an opening too?
                     self.opening = move[1] if move[1] is not None else self.opening
                     move = move[0]
-                elif self.opening is not None:
+                elif not isbot and self.opening is not None:
                     self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "both")
                     self.opening = None
                 self.make_move(game_id, move)

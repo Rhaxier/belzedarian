@@ -18,10 +18,10 @@ URL = "https://belzedar.duckdns.org/atomicdb/api/query"
 SESSION = requests.Session()
 SESSION.mount("https://", HTTPAdapter(max_retries=Retry(total=1, backoff_factor=0.1, allowed_methods=["GET"])))
 
-def query_from_url(fen):
+def query_from_url(fen, isbot):
     """Queries the best move for fen from the URL, may raise errors
     (requiring manual handling)"""
-    response = SESSION.get(URL,params={"fen": fen, "opening": 1},timeout=2)
+    response = SESSION.get(URL,params=({"fen": fen}|({"opening": 1}if not isbot else {})),timeout=1)
     # Including 404, so whoever uses this is forced to use a
     # try-except to fallback to atomic-sf
     response.raise_for_status()
