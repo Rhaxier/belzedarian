@@ -160,7 +160,7 @@ class Communicator:
                 board = _fen.Board()
                 side = "w" if self.id == event["white"]["id"] else "b"
                 try:
-                    isbot = event[("black" if side == "w" else "white")]["title"].lower() == "bot"
+                    isbot = event[("black" if side == "w" else "white")]["title"] == "BOT"
                 except KeyError:
                     isbot = False
                 moves = event["state"]["moves"].split()
