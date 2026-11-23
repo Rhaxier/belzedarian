@@ -184,6 +184,8 @@ class Communicator:
                                                     # subsequent ones where clock runs where we gotta focus
                         self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "both")
                         self.opening = None
+                    else:
+                        self.make_move(game_id, move)    
                     
                 
             elif event["type"] == "gameState":
@@ -202,7 +204,7 @@ class Communicator:
                 if board.side != side:
                     continue
 
-                lag = min(13 * min(1000 - event[side+"inc"], 0), event[side+"time"]//3)
+                lag = min(13 * max(1000 - event[side+"inc"], 0), event[side+"time"]//3)
 
                 move = core.get_move(board.get_fen, (event["wtime"]-lag) if side=="w" else event["wtime"], (event["btime"]-lag) if side=="b" else event["btime"], event["winc"], event["binc"], bot=isbot)
                 if isinstance(move, tuple): # got an opening too?
@@ -213,8 +215,8 @@ class Communicator:
                     self.make_move(game_id, move)
                     self.send_chat(game_id, f"Out of theory! Playing {self.opening}", "both")
                     self.opening = None
-                
-
+                else:
+                    self.make_move(game_id, move)
 if __name__ == "__main__":
 
     # todo: switch to argv, maybe using argparse or something
